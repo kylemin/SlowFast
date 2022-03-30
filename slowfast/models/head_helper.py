@@ -100,7 +100,7 @@ class ResNetRoIHead(nn.Module):
                 "function.".format(act_func)
             )
 
-    def forward(self, inputs, bboxes):
+    def forward(self, inputs, bboxes, return_feats=False):
         assert (
             len(inputs) == self.num_pathways
         ), "Input tensor does not contain {} pathway".format(self.num_pathways)
@@ -118,7 +118,8 @@ class ResNetRoIHead(nn.Module):
             pool_out.append(s_pool(out))
 
         # B C H W.
-        x = torch.cat(pool_out, 1)
+        x = torch.cat(pool_out, 1) # (N,2304,1,1)
+        feat = x.detach().squeeze(-1).squeeze(-1)
 
         # Perform dropout.
         if hasattr(self, "dropout"):
@@ -127,7 +128,11 @@ class ResNetRoIHead(nn.Module):
         x = x.view(x.shape[0], -1)
         x = self.projection(x)
         x = self.act(x)
-        return x
+
+        if return_feats:
+            return x, feat
+        else:
+            return x
 
 
 class ResNetBasicHead(nn.Module):

@@ -2,7 +2,7 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
 
 """Argument parser functions."""
-
+import os
 import argparse
 import sys
 
@@ -90,5 +90,7 @@ def load_config(args):
         cfg.OUTPUT_DIR = args.output_dir
 
     # Create the checkpoint dir.
-    cu.make_checkpoint_dir(cfg.OUTPUT_DIR)
+    os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
+    if cfg.TRAIN.ENABLE:
+        cu.make_checkpoint_dir(cfg.OUTPUT_DIR)
     return cfg

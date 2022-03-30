@@ -404,7 +404,7 @@ class SlowFast(nn.Module):
                 act_func=cfg.MODEL.HEAD_ACT,
             )
 
-    def forward(self, x, bboxes=None):
+    def forward(self, x, bboxes=None, return_feats=False):
         x = self.s1(x)
         x = self.s1_fuse(x)
         x = self.s2(x)
@@ -418,7 +418,7 @@ class SlowFast(nn.Module):
         x = self.s4_fuse(x)
         x = self.s5(x)
         if self.enable_detection:
-            x = self.head(x, bboxes)
+            x = self.head(x, bboxes, return_feats)
         else:
             x = self.head(x)
         return x

@@ -45,6 +45,9 @@ def perform_test(test_loader, model, test_meter, cfg, writer=None):
     # Enable eval mode.
     model.eval()
     test_meter.iter_tic()
+    features = None
+    keypairs = None
+    bboxes = None
 
     for cur_iter, (inputs, labels, video_idx, meta) in enumerate(test_loader):
         if cfg.NUM_GPUS:
@@ -68,11 +71,13 @@ def perform_test(test_loader, model, test_meter, cfg, writer=None):
 
         if cfg.DETECTION.ENABLE:
             # Compute the predictions.
-            preds = model(inputs, meta["boxes"])
+            #preds = model(inputs, meta["boxes"])
+            preds, feats = model(inputs, meta["boxes"], True)
             ori_boxes = meta["ori_boxes"]
             metadata = meta["metadata"]
 
             preds = preds.detach().cpu() if cfg.NUM_GPUS else preds.detach()
+            feats = feats.detach().cpu() if cfg.NUM_GPUS else feats.detach()
             ori_boxes = (
                 ori_boxes.detach().cpu() if cfg.NUM_GPUS else ori_boxes.detach()
             )
@@ -82,6 +87,7 @@ def perform_test(test_loader, model, test_meter, cfg, writer=None):
 
             if cfg.NUM_GPUS > 1:
                 preds = torch.cat(du.all_gather_unaligned(preds), dim=0)
+                feats = torch.cat(du.all_gather_unaligned(feats), dim=0)
                 ori_boxes = torch.cat(du.all_gather_unaligned(ori_boxes), dim=0)
                 metadata = torch.cat(du.all_gather_unaligned(metadata), dim=0)
 
@@ -89,6 +95,21 @@ def perform_test(test_loader, model, test_meter, cfg, writer=None):
             # Update and log stats.
             test_meter.update_stats(preds, ori_boxes, metadata)
             test_meter.log_iter_stats(None, cur_iter)
+
+            if features is None:
+                features = feats.numpy()
+            else:
+                features = np.concatenate((features, feats.numpy()), axis=0)
+
+            if bboxes is None:
+                bboxes = ori_boxes.numpy()
+            else:
+                bboxes = np.concatenate((bboxes, ori_boxes.numpy()), axis=0)
+
+            if keypairs is None:
+                keypairs = metadata.numpy()
+            else:
+                keypairs = np.concatenate((keypairs, metadata.numpy()), axis=0)
         else:
             # Perform the forward pass.
             preds = model(inputs)
@@ -111,6 +132,9 @@ def perform_test(test_loader, model, test_meter, cfg, writer=None):
             test_meter.log_iter_stats(cur_iter)
 
         test_meter.iter_tic()
+
+    with open(os.path.join(cfg.OUTPUT_DIR, 'feature_info.pkl'), 'wb') as f:
+        pickle.dump((features, bboxes, keypairs, test_meter.video_idx_to_name), f)
 
     # Log epoch stats and print the final testing results.
     if not cfg.DETECTION.ENABLE:
