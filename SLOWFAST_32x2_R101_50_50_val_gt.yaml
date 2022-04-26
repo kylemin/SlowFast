@@ -25,12 +25,12 @@ AVA:
   FRAME_LIST_DIR: data/ava/frame_lists
   ANNOTATION_DIR: data/ava/annotations
   TRAIN_LISTS: ["train.csv"]
-  TEST_LISTS: ["train.csv"]
+  TEST_LISTS: ["val.csv"]
   TRAIN_GT_BOX_LISTS: ["ava_train_v2.2.csv"]
-  TRAIN_PREDICT_BOX_LISTS: ["ava_train_predicted_boxes.csv"]
-  TEST_PREDICT_BOX_LISTS: ["ava_train_predicted_boxes.csv"]
-  EXCLUSION_FILE: "ava_train_excluded_timestamps_v2.2.csv"
-  GROUNDTRUTH_FILE: "ava_train_v2.2.csv"
+  TRAIN_PREDICT_BOX_LISTS: ["ava_train_gt_boxes.csv"]
+  TEST_PREDICT_BOX_LISTS: ["ava_val_gt_boxes.csv"]
+  EXCLUSION_FILE: "ava_val_excluded_timestamps_v2.2.csv"
+  GROUNDTRUTH_FILE: "ava_val_v2.2.csv"
 SLOWFAST:
   ALPHA: 4
   BETA_INV: 8
@@ -76,4 +76,4 @@ DATA_LOADER:
 NUM_GPUS: 8
 NUM_SHARDS: 1
 RNG_SEED: 0
-OUTPUT_DIR: output/SLOWFAST_32x2_R101_50_50_train
+OUTPUT_DIR: output/SLOWFAST_32x2_R101_50_50_val_gt

@@ -6,10 +6,10 @@ TRAIN:
   CHECKPOINT_PERIOD: 1
   AUTO_RESUME: True
   # CHECKPOINT_FILE_PATH: path to pretrain model
-  CHECKPOINT_TYPE: pytorch
+  CHECKPOINT_TYPE: caffe2
 DATA:
   PATH_TO_DATA_DIR: data
-  NUM_FRAMES: 32
+  NUM_FRAMES: 64
   SAMPLING_RATE: 2
   TRAIN_JITTER_SCALES: [256, 320]
   TRAIN_CROP_SIZE: 224
@@ -27,8 +27,8 @@ AVA:
   TRAIN_LISTS: ["train.csv"]
   TEST_LISTS: ["train.csv"]
   TRAIN_GT_BOX_LISTS: ["ava_train_v2.2.csv"]
-  TRAIN_PREDICT_BOX_LISTS: ["ava_train_predicted_boxes.csv"]
-  TEST_PREDICT_BOX_LISTS: ["ava_train_predicted_boxes.csv"]
+  TRAIN_PREDICT_BOX_LISTS: ["ava_train_gt_boxes.csv"]
+  TEST_PREDICT_BOX_LISTS: ["ava_train_gt_boxes.csv"]
   EXCLUSION_FILE: "ava_train_excluded_timestamps_v2.2.csv"
   GROUNDTRUTH_FILE: "ava_train_v2.2.csv"
 SLOWFAST:
@@ -69,11 +69,11 @@ TEST:
   ENABLE: True
   DATASET: ava
   BATCH_SIZE: 8
-  CHECKPOINT_FILE_PATH: SLOWFAST_32x2_R101_50_50.pkl
+  CHECKPOINT_FILE_PATH: SLOWFAST_64x2_R101_50_50.pkl
 DATA_LOADER:
   NUM_WORKERS: 2
   PIN_MEMORY: True
 NUM_GPUS: 8
 NUM_SHARDS: 1
 RNG_SEED: 0
-OUTPUT_DIR: output/SLOWFAST_32x2_R101_50_50_train
+OUTPUT_DIR: output/SLOWFAST_64x2_R101_50_50_train_gt
